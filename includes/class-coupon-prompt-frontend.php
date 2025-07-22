@@ -69,6 +69,24 @@ class Coupon_Prompt_Frontend
             if ($coupon->get_usage_limit() && $coupon->get_usage_count() >= $coupon->get_usage_limit()) continue;
             if (!$coupon->is_valid()) continue;
 
+            // Discount type and amount
+            $discount_type = $coupon->get_discount_type();
+            $amount = $coupon->get_amount();
+            $discount_label = '';
+            if ($discount_type === 'percent') {
+                // Show as "20% off" (use raw value, no trimming)
+                /* translators: %d: percent discount value */
+                $discount_label = sprintf(__('(%d%% off)', 'coupon-prompt'), (int) $amount);
+            } elseif ($discount_type === 'fixed_cart') {
+                // Show as "$5 off" using wc_price
+                /* translators: %s: formatted discount amount (currency) */
+                $discount_label = sprintf(__('(%s off)', 'coupon-prompt'), wc_price($amount));
+            } elseif ($discount_type === 'fixed_product') {
+                // Show as "$5 off per item" using wc_price
+                /* translators: %s: formatted discount amount (currency) */
+                $discount_label = sprintf(__('(%s off per item)', 'coupon-prompt'), wc_price($amount));
+            }
+
             // Expiry countdown logic (only if enabled by admin)
             $expiry_html = '';
             $show_expiry = get_post_meta($coupon->get_id(), 'coupon_prompt_show_expiry', true);
@@ -108,8 +126,9 @@ class Coupon_Prompt_Frontend
                 '<div style="text-align:center;">🎉 ' .
                     /* translators: 1: coupon code */
                     __('You are eligible for the "%s" coupon!', 'coupon-prompt') .
-                    ' %s <a href="%s" class="button button-small" style="margin-left: 10px;">' . __('Apply Now', 'coupon-prompt') . '</a></div>',
+                    ' <span style="color:#2980b9; font-size:90%%; margin-left:5px;">%s</span> %s <a href="%s" class="button button-small" style="margin-left: 10px;">' . __('Apply Now', 'coupon-prompt') . '</a></div>',
                 esc_html($code),
+                $discount_label,
                 $expiry_html,
                 esc_url($apply_url)
             );
