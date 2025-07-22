@@ -9,6 +9,10 @@
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: coupon-prompt
+ * Requires at least: 5.0
+ * Tested up to: 6.5
+ * Requires PHP: 7.2
+ * Tags: woocommerce, coupons, cart, checkout, prompt
  */
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
