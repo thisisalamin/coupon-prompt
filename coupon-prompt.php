@@ -3,9 +3,11 @@
 /**
  * Plugin Name: Coupon Prompt
  * Description: Display smart coupon notices on cart/checkout if a valid WooCommerce coupon is available but not applied. Also optionally auto-applies best coupon based on cart total.
- * Version: 1.2.1 // Updated version number for the change
- * Author: Alamin
+ * Version: 1.0.0
+ * Author: Crafely
+ * Author URI: https://profiles.wordpress.org/crafely
  * License: GPLv2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: coupon-prompt
  */
 
@@ -13,7 +15,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 // Define constants for easier management and potential future use
 if (!defined('COUPON_PROMPT_VERSION')) {
-    define('COUPON_PROMPT_VERSION', '1.2.1');
+    define('COUPON_PROMPT_VERSION', '1.0.0');
 }
 if (!defined('COUPON_PROMPT_DIR')) {
     define('COUPON_PROMPT_DIR', plugin_dir_path(__FILE__));
