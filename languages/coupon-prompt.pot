@@ -31,19 +31,40 @@ msgid "You are eligible for the \"%s\" coupon!"
 msgstr ""
 
 #: includes/class-coupon-prompt-frontend.php
+#. translators: %d: percent discount value
+msgid "(%d%% off)"
+msgstr ""
+
+#: includes/class-coupon-prompt-frontend.php
+#. translators: %s: formatted discount amount (currency)
+msgid "(%s off)"
+msgstr ""
+
+#: includes/class-coupon-prompt-frontend.php
+#. translators: %s: formatted discount amount (currency)
+msgid "(%s off per item)"
+msgstr ""
+
+#: includes/class-coupon-prompt-frontend.php
 msgid "Apply Now"
 msgstr ""
 
 #: includes/class-coupon-prompt-frontend.php
-msgid "Expires in %d day%s"
+
+#. translators: 1: number of days, 2: plural s
+msgid "Expires in %1$d day%2$s"
 msgstr ""
 
 #: includes/class-coupon-prompt-frontend.php
-msgid "Expires in %d hour%s"
+
+#. translators: 1: number of hours, 2: plural s
+msgid "Expires in %1$d hour%2$s"
 msgstr ""
 
 #: includes/class-coupon-prompt-frontend.php
-msgid "Expires in %d minute%s"
+
+#. translators: 1: number of minutes, 2: plural s
+msgid "Expires in %1$d minute%2$s"
 msgstr ""
 
 #: includes/class-coupon-prompt-frontend.php
