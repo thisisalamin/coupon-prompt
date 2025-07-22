@@ -29,6 +29,31 @@ class Coupon_Prompt_Admin
             'desc_tip' => true,
             'value' => get_post_meta($coupon_id, 'coupon_prompt_show_expiry', true) ? 'yes' : '',
         ));
+        echo '<div style="margin-top:8px;"></div>';
+        // Button Text
+        woocommerce_wp_text_input(array(
+            'id' => 'coupon_prompt_button_text',
+            'label' => __('Button Text', 'coupon-prompt'),
+            'description' => __('Text for the apply button.', 'coupon-prompt'),
+            'desc_tip' => true,
+            'value' => get_post_meta($coupon_id, 'coupon_prompt_button_text', true) ?: __('Apply Now', 'coupon-prompt'),
+        ));
+        // Message Text
+        woocommerce_wp_text_input(array(
+            'id' => 'coupon_prompt_message_text',
+            'label' => __('Message Text', 'coupon-prompt'),
+            'description' => __('Main message. Use {code}, {discount}, {expiry} as placeholders.', 'coupon-prompt'),
+            'desc_tip' => true,
+            'value' => get_post_meta($coupon_id, 'coupon_prompt_message_text', true) ?: __('🎉 You are eligible for the “{code}” coupon! {discount} {expiry}', 'coupon-prompt'),
+        ));
+        // Expiry Label
+        woocommerce_wp_text_input(array(
+            'id' => 'coupon_prompt_expiry_label',
+            'label' => __('Expiry Label', 'coupon-prompt'),
+            'description' => __('Label for expiry countdown. Use {days}, {hours}, {minutes}.', 'coupon-prompt'),
+            'desc_tip' => true,
+            'value' => get_post_meta($coupon_id, 'coupon_prompt_expiry_label', true) ?: __('Expires in {days} days', 'coupon-prompt'),
+        ));
     }
 
     public static function save_coupon_field($post_id, $coupon)
@@ -42,5 +67,14 @@ class Coupon_Prompt_Admin
         update_post_meta($post_id, 'coupon_prompt_show', $show);
         $show_expiry = isset($_POST['coupon_prompt_show_expiry']) && $_POST['coupon_prompt_show_expiry'] === 'yes' ? 'yes' : '';
         update_post_meta($post_id, 'coupon_prompt_show_expiry', $show_expiry);
+        // Save button text
+        $button_text = isset($_POST['coupon_prompt_button_text']) ? sanitize_text_field(wp_unslash($_POST['coupon_prompt_button_text'])) : '';
+        update_post_meta($post_id, 'coupon_prompt_button_text', $button_text);
+        // Save message text
+        $message_text = isset($_POST['coupon_prompt_message_text']) ? sanitize_text_field(wp_unslash($_POST['coupon_prompt_message_text'])) : '';
+        update_post_meta($post_id, 'coupon_prompt_message_text', $message_text);
+        // Save expiry label
+        $expiry_label = isset($_POST['coupon_prompt_expiry_label']) ? sanitize_text_field(wp_unslash($_POST['coupon_prompt_expiry_label'])) : '';
+        update_post_meta($post_id, 'coupon_prompt_expiry_label', $expiry_label);
     }
 }

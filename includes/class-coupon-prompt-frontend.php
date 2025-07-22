@@ -74,15 +74,12 @@ class Coupon_Prompt_Frontend
             $amount = $coupon->get_amount();
             $discount_label = '';
             if ($discount_type === 'percent') {
-                // Show as "20% off" (use raw value, no trimming)
                 /* translators: %d: percent discount value */
                 $discount_label = sprintf(__('(%d%% off)', 'coupon-prompt'), (int) $amount);
             } elseif ($discount_type === 'fixed_cart') {
-                // Show as "$5 off" using wc_price
                 /* translators: %s: formatted discount amount (currency) */
                 $discount_label = sprintf(__('(%s off)', 'coupon-prompt'), wc_price($amount));
             } elseif ($discount_type === 'fixed_product') {
-                // Show as "$5 off per item" using wc_price
                 /* translators: %s: formatted discount amount (currency) */
                 $discount_label = sprintf(__('(%s off per item)', 'coupon-prompt'), wc_price($amount));
             }
@@ -90,6 +87,11 @@ class Coupon_Prompt_Frontend
             // Expiry countdown logic (only if enabled by admin)
             $expiry_html = '';
             $show_expiry = get_post_meta($coupon->get_id(), 'coupon_prompt_show_expiry', true);
+            $expiry_label = get_post_meta($coupon->get_id(), 'coupon_prompt_expiry_label', true);
+            if (!$expiry_label) {
+                /* translators: {days} will be replaced with the number of days left */
+                $expiry_label = __('Expires in {days} days', 'coupon-prompt');
+            }
             if ($show_expiry === 'yes') {
                 $expiry_timestamp = $coupon->get_date_expires() ? $coupon->get_date_expires()->getTimestamp() : false;
                 if ($expiry_timestamp) {
@@ -99,16 +101,11 @@ class Coupon_Prompt_Frontend
                         $days = floor($seconds_left / 86400);
                         $hours = floor(($seconds_left % 86400) / 3600);
                         $minutes = floor(($seconds_left % 3600) / 60);
-                        if ($days > 0) {
-                            /* translators: 1: number of days, 2: plural s */
-                            $expiry_html = '<span style="color:#d35400; font-size:90%; margin-left:10px;">' . sprintf(__('Expires in %1$d day%2$s', 'coupon-prompt'), $days, $days > 1 ? 's' : '') . '</span>';
-                        } elseif ($hours > 0) {
-                            /* translators: 1: number of hours, 2: plural s */
-                            $expiry_html = '<span style="color:#d35400; font-size:90%; margin-left:10px;">' . sprintf(__('Expires in %1$d hour%2$s', 'coupon-prompt'), $hours, $hours > 1 ? 's' : '') . '</span>';
-                        } elseif ($minutes > 0) {
-                            /* translators: 1: number of minutes, 2: plural s */
-                            $expiry_html = '<span style="color:#d35400; font-size:90%; margin-left:10px;">' . sprintf(__('Expires in %1$d minute%2$s', 'coupon-prompt'), $minutes, $minutes > 1 ? 's' : '') . '</span>';
-                        }
+                        $label = $expiry_label;
+                        $label = str_replace('{days}', $days, $label);
+                        $label = str_replace('{hours}', $hours, $label);
+                        $label = str_replace('{minutes}', $minutes, $label);
+                        $expiry_html = '<span style="color:#d35400; font-size:90%; margin-left:10px;">' . esc_html($label) . '</span>';
                     } else {
                         $expiry_html = '<span style="color:#c0392b; font-size:90%; margin-left:10px;">' . __('Expired', 'coupon-prompt') . '</span>';
                     }
@@ -121,17 +118,26 @@ class Coupon_Prompt_Frontend
                 'coupon_prompt_nonce' => wp_create_nonce('coupon_prompt_apply_' . $code),
             ));
 
-            /* translators: 1: coupon code */
-            $message = sprintf(
-                '<div style="text-align:center;">🎉 ' .
-                    /* translators: 1: coupon code */
-                    __('You are eligible for the "%s" coupon!', 'coupon-prompt') .
-                    ' <span style="color:#2980b9; font-size:90%%; margin-left:5px;">%s</span> %s <a href="%s" class="button button-small" style="margin-left: 10px;">' . __('Apply Now', 'coupon-prompt') . '</a></div>',
-                esc_html($code),
-                $discount_label,
-                $expiry_html,
-                esc_url($apply_url)
+            // Get dynamic message and button text
+            $message_text = get_post_meta($coupon->get_id(), 'coupon_prompt_message_text', true);
+            if (!$message_text) {
+                /* translators: {code} is the coupon code, {discount} is the discount label, {expiry} is the expiry string */
+                $message_text = __('🎉 You are eligible for the “{code}” coupon! {discount} {expiry}', 'coupon-prompt');
+            }
+            $button_text = get_post_meta($coupon->get_id(), 'coupon_prompt_button_text', true);
+            if (!$button_text) {
+                /* translators: Button text for applying the coupon */
+                $button_text = __('Apply Now', 'coupon-prompt');
+            }
+            // Replace placeholders
+            // Color the discount label for theme visibility
+            $discount_label_colored = '<span style="color:#2980b9; font-weight:bold;">' . $discount_label . '</span>';
+            $message = str_replace(
+                ['{code}', '{discount}', '{expiry}'],
+                [esc_html($code), $discount_label_colored, $expiry_html],
+                $message_text
             );
+            $message = '<div style="text-align:center;">' . $message . ' <a href="' . esc_url($apply_url) . '" class="button button-small" style="margin-left: 10px;">' . esc_html($button_text) . '</a></div>';
             wc_print_notice($message, 'notice');
         }
     }
