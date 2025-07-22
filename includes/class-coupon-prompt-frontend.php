@@ -82,11 +82,14 @@ class Coupon_Prompt_Frontend
                         $hours = floor(($seconds_left % 86400) / 3600);
                         $minutes = floor(($seconds_left % 3600) / 60);
                         if ($days > 0) {
-                            $expiry_html = '<span style="color:#d35400; font-size:90%; margin-left:10px;">' . sprintf(__('Expires in %d day%s', 'coupon-prompt'), $days, $days > 1 ? 's' : '') . '</span>';
+                            /* translators: 1: number of days, 2: plural s */
+                            $expiry_html = '<span style="color:#d35400; font-size:90%; margin-left:10px;">' . sprintf(__('Expires in %1$d day%2$s', 'coupon-prompt'), $days, $days > 1 ? 's' : '') . '</span>';
                         } elseif ($hours > 0) {
-                            $expiry_html = '<span style="color:#d35400; font-size:90%; margin-left:10px;">' . sprintf(__('Expires in %d hour%s', 'coupon-prompt'), $hours, $hours > 1 ? 's' : '') . '</span>';
+                            /* translators: 1: number of hours, 2: plural s */
+                            $expiry_html = '<span style="color:#d35400; font-size:90%; margin-left:10px;">' . sprintf(__('Expires in %1$d hour%2$s', 'coupon-prompt'), $hours, $hours > 1 ? 's' : '') . '</span>';
                         } elseif ($minutes > 0) {
-                            $expiry_html = '<span style="color:#d35400; font-size:90%; margin-left:10px;">' . sprintf(__('Expires in %d minute%s', 'coupon-prompt'), $minutes, $minutes > 1 ? 's' : '') . '</span>';
+                            /* translators: 1: number of minutes, 2: plural s */
+                            $expiry_html = '<span style="color:#d35400; font-size:90%; margin-left:10px;">' . sprintf(__('Expires in %1$d minute%2$s', 'coupon-prompt'), $minutes, $minutes > 1 ? 's' : '') . '</span>';
                         }
                     } else {
                         $expiry_html = '<span style="color:#c0392b; font-size:90%; margin-left:10px;">' . __('Expired', 'coupon-prompt') . '</span>';
@@ -94,11 +97,21 @@ class Coupon_Prompt_Frontend
                 }
             }
 
+            // Add nonce to apply link
+            $apply_url = add_query_arg(array(
+                'apply_coupon_prompt' => $code,
+                'coupon_prompt_nonce' => wp_create_nonce('coupon_prompt_apply_' . $code),
+            ));
+
+            /* translators: 1: coupon code */
             $message = sprintf(
-                '<div style="text-align:center;">🎉 ' . __('You are eligible for the "%s" coupon!', 'coupon-prompt') . ' %s <a href="%s" class="button button-small" style="margin-left: 10px;">' . __('Apply Now', 'coupon-prompt') . '</a></div>',
+                '<div style="text-align:center;">🎉 ' .
+                    /* translators: 1: coupon code */
+                    __('You are eligible for the "%s" coupon!', 'coupon-prompt') .
+                    ' %s <a href="%s" class="button button-small" style="margin-left: 10px;">' . __('Apply Now', 'coupon-prompt') . '</a></div>',
                 esc_html($code),
                 $expiry_html,
-                esc_url(add_query_arg('apply_coupon_prompt', $code))
+                esc_url($apply_url)
             );
             wc_print_notice($message, 'notice');
         }
@@ -111,21 +124,30 @@ class Coupon_Prompt_Frontend
             !WC()->cart ||
             !method_exists(WC()->cart, 'has_discount') ||
             !function_exists('wc_add_notice') ||
-            !isset($_GET['apply_coupon_prompt'])
+            !isset($_GET['apply_coupon_prompt']) ||
+            !isset($_GET['coupon_prompt_nonce'])
         ) {
             return;
         }
         $coupon_code = sanitize_text_field(wp_unslash($_GET['apply_coupon_prompt']));
+        $nonce = sanitize_text_field(wp_unslash($_GET['coupon_prompt_nonce']));
+        if (!wp_verify_nonce($nonce, 'coupon_prompt_apply_' . $coupon_code)) {
+            wc_add_notice(__('Security check failed. Please try again.', 'coupon-prompt'), 'error');
+            wp_redirect(remove_query_arg(array('apply_coupon_prompt', 'coupon_prompt_nonce')));
+            exit;
+        }
         if (!WC()->cart->has_discount($coupon_code)) {
             if (method_exists(WC()->cart, 'add_discount')) {
                 $applied = WC()->cart->add_discount($coupon_code);
                 if ($applied) {
+                    /* translators: 1: coupon code */
                     wc_add_notice(sprintf(__('Coupon "%s" applied!', 'coupon-prompt'), $coupon_code), 'success');
                 } else {
+                    /* translators: 1: coupon code */
                     wc_add_notice(sprintf(__('Could not apply coupon "%s". It might be invalid or not applicable.', 'coupon-prompt'), $coupon_code), 'error');
                 }
             }
-            wp_redirect(remove_query_arg('apply_coupon_prompt'));
+            wp_redirect(remove_query_arg(array('apply_coupon_prompt', 'coupon_prompt_nonce')));
             exit;
         }
     }

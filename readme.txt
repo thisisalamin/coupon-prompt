@@ -1,12 +1,15 @@
+
 === Coupon Prompt ===
 Contributors: crafely
 Tags: woocommerce, coupons, cart, checkout, prompt
 Requires at least: 5.0
-Tested up to: 6.5
+Tested up to: 6.8
 Requires PHP: 7.2
 Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
+
+Smart WooCommerce coupon suggestions for cart and checkout—no auto-apply, just helpful prompts.
 
 == Description ==
 Display smart coupon notices on cart/checkout if a valid WooCommerce coupon is available but not applied. Optionally show expiry countdowns and more. No auto-apply—let your customers choose!
