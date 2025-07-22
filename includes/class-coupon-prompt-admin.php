@@ -19,11 +19,21 @@ class Coupon_Prompt_Admin
             'desc_tip' => true,
             'value' => get_post_meta($coupon_id, 'coupon_prompt_show', true) ? 'yes' : '',
         ));
+        echo '<div style="margin-top:8px;"></div>';
+        woocommerce_wp_checkbox(array(
+            'id' => 'coupon_prompt_show_expiry',
+            'label' => __('Show Expiry Countdown?', 'coupon-prompt'),
+            'description' => __('If checked, show the expiry countdown for this coupon in the prompt.', 'coupon-prompt'),
+            'desc_tip' => true,
+            'value' => get_post_meta($coupon_id, 'coupon_prompt_show_expiry', true) ? 'yes' : '',
+        ));
     }
 
     public static function save_coupon_field($post_id, $coupon)
     {
         $show = isset($_POST['coupon_prompt_show']) && $_POST['coupon_prompt_show'] === 'yes' ? 'yes' : '';
         update_post_meta($post_id, 'coupon_prompt_show', $show);
+        $show_expiry = isset($_POST['coupon_prompt_show_expiry']) && $_POST['coupon_prompt_show_expiry'] === 'yes' ? 'yes' : '';
+        update_post_meta($post_id, 'coupon_prompt_show_expiry', $show_expiry);
     }
 }

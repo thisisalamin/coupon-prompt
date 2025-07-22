@@ -68,9 +68,36 @@ class Coupon_Prompt_Frontend
             if (WC()->cart->has_discount($code)) continue;
             if ($coupon->get_usage_limit() && $coupon->get_usage_count() >= $coupon->get_usage_limit()) continue;
             if (!$coupon->is_valid()) continue;
+
+            // Expiry countdown logic (only if enabled by admin)
+            $expiry_html = '';
+            $show_expiry = get_post_meta($coupon->get_id(), 'coupon_prompt_show_expiry', true);
+            if ($show_expiry === 'yes') {
+                $expiry_timestamp = $coupon->get_date_expires() ? $coupon->get_date_expires()->getTimestamp() : false;
+                if ($expiry_timestamp) {
+                    $now = current_time('timestamp');
+                    $seconds_left = $expiry_timestamp - $now;
+                    if ($seconds_left > 0) {
+                        $days = floor($seconds_left / 86400);
+                        $hours = floor(($seconds_left % 86400) / 3600);
+                        $minutes = floor(($seconds_left % 3600) / 60);
+                        if ($days > 0) {
+                            $expiry_html = '<span style="color:#d35400; font-size:90%; margin-left:10px;">' . sprintf(__('Expires in %d day%s', 'coupon-prompt'), $days, $days > 1 ? 's' : '') . '</span>';
+                        } elseif ($hours > 0) {
+                            $expiry_html = '<span style="color:#d35400; font-size:90%; margin-left:10px;">' . sprintf(__('Expires in %d hour%s', 'coupon-prompt'), $hours, $hours > 1 ? 's' : '') . '</span>';
+                        } elseif ($minutes > 0) {
+                            $expiry_html = '<span style="color:#d35400; font-size:90%; margin-left:10px;">' . sprintf(__('Expires in %d minute%s', 'coupon-prompt'), $minutes, $minutes > 1 ? 's' : '') . '</span>';
+                        }
+                    } else {
+                        $expiry_html = '<span style="color:#c0392b; font-size:90%; margin-left:10px;">' . __('Expired', 'coupon-prompt') . '</span>';
+                    }
+                }
+            }
+
             $message = sprintf(
-                '<div style="text-align:center;">🎉 ' . __('You are eligible for the "%s" coupon!', 'coupon-prompt') . ' <a href="%s" class="button button-small" style="margin-left: 10px;">' . __('Apply Now', 'coupon-prompt') . '</a></div>',
+                '<div style="text-align:center;">🎉 ' . __('You are eligible for the "%s" coupon!', 'coupon-prompt') . ' %s <a href="%s" class="button button-small" style="margin-left: 10px;">' . __('Apply Now', 'coupon-prompt') . '</a></div>',
                 esc_html($code),
+                $expiry_html,
                 esc_url(add_query_arg('apply_coupon_prompt', $code))
             );
             wc_print_notice($message, 'notice');
