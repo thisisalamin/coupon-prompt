@@ -40,8 +40,6 @@ require_once COUPON_PROMPT_DIR . 'includes/class-coupon-prompt-utils.php';
 add_action('plugins_loaded', 'coupon_prompt_init');
 function coupon_prompt_init()
 {
-    // Load text domain for translations
-    load_plugin_textdomain('coupon-prompt', false, basename(COUPON_PROMPT_DIR) . '/languages');
 
     if (!class_exists('WooCommerce')) {
         // Show admin notice if WooCommerce is not active
