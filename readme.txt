@@ -9,10 +9,22 @@ Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Smart WooCommerce coupon suggestions for cart and checkout—no auto-apply, just helpful prompts.
+
+Smart WooCommerce coupon suggestions for cart and checkout—no auto-apply, just helpful, secure prompts.
 
 == Description ==
-Display smart coupon notices on cart/checkout if a valid WooCommerce coupon is available but not applied. Optionally show expiry countdowns and more. No auto-apply—let your customers choose!
+
+Display smart coupon notices on the cart and checkout pages if a valid WooCommerce coupon is available but not applied. Let your customers see which coupons they can use, what discount they’ll get, and when the offer expires—then let them choose to apply it with a single click.
+
+**Features:**
+- Suggests eligible WooCommerce coupons on cart and checkout pages
+- Per-coupon toggle: choose which coupons are suggested
+- Shows discount type and amount (e.g., “20% off”, “$5 off”, “$5 off per item”)
+- Optional expiry countdown for each coupon
+- Secure “Apply Now” button with nonce protection
+- Fully translation-ready (.pot file included)
+- No auto-apply: customers choose which coupon to use
+- Compatible with most themes and WooCommerce setups
 
 == Installation ==
 1. Upload the plugin files to the `/wp-content/plugins/coupon-prompt` directory, or install the plugin through the WordPress plugins screen directly.
