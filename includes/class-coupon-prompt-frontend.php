@@ -148,6 +148,18 @@ class Coupon_Prompt_Frontend
         ) {
             return;
         }
+        // Only allow logged-in users or guests with cart access
+        if (!is_user_logged_in() && !apply_filters('coupon_prompt_allow_guest_apply', false)) {
+            wc_add_notice(__('You must be logged in to apply a coupon.', 'coupon-prompt'), 'error');
+            wp_redirect(remove_query_arg(array('apply_coupon_prompt', 'coupon_prompt_nonce')));
+            exit;
+        }
+        // Permission check for users
+        if (is_user_logged_in() && !current_user_can('edit_shop_orders')) {
+            wc_add_notice(__('You do not have permission to apply coupons.', 'coupon-prompt'), 'error');
+            wp_redirect(remove_query_arg(array('apply_coupon_prompt', 'coupon_prompt_nonce')));
+            exit;
+        }
         $coupon_code = sanitize_text_field(wp_unslash($_GET['apply_coupon_prompt']));
         $nonce = sanitize_text_field(wp_unslash($_GET['coupon_prompt_nonce']));
         if (!wp_verify_nonce($nonce, 'coupon_prompt_apply_' . $coupon_code)) {
