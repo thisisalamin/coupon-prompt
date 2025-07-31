@@ -6,7 +6,7 @@
  * Plugin URI: https://github.com/Crafely/coupon-prompt
  * Version: 1.0.0
  * Author: Crafely
- * Author URI: https://profiles.wordpress.org/crafely
+ * Author URI: https://crafely.com/
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: coupon-prompt
