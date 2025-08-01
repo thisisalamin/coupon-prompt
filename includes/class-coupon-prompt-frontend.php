@@ -138,20 +138,23 @@ class Coupon_Prompt_Frontend
 
     public static function apply_coupon()
     {
+        $nonce = isset($_GET['coupon_prompt_nonce']) ? sanitize_text_field(wp_unslash($_GET['coupon_prompt_nonce'])) : '';
+        $coupon_code_for_nonce = '';
+        if (isset($_GET['apply_coupon_prompt'])) {
+            $coupon_code_for_nonce = sanitize_text_field(wp_unslash($_GET['apply_coupon_prompt']));
+        }
         if (
             !function_exists('WC') ||
             !WC()->cart ||
             !method_exists(WC()->cart, 'has_discount') ||
             !function_exists('wc_add_notice') ||
-            !isset($_GET['apply_coupon_prompt']) ||
-            !isset($_GET['coupon_prompt_nonce'])
+            empty($coupon_code_for_nonce) ||
+            empty($nonce)
         ) {
             return;
         }
         // Nonce check first, before processing any input
-        $nonce = isset($_GET['coupon_prompt_nonce']) ? sanitize_text_field(wp_unslash($_GET['coupon_prompt_nonce'])) : '';
-        $coupon_code_raw = isset($_GET['apply_coupon_prompt']) ? $_GET['apply_coupon_prompt'] : '';
-        if (empty($nonce) || empty($coupon_code_raw) || !wp_verify_nonce($nonce, 'coupon_prompt_apply_' . $coupon_code_raw)) {
+        if (!wp_verify_nonce($nonce, 'coupon_prompt_apply_' . $coupon_code_for_nonce)) {
             wc_add_notice(__('Security check failed. Please try again.', 'coupon-prompt'), 'error');
             wp_redirect(remove_query_arg(array('apply_coupon_prompt', 'coupon_prompt_nonce')));
             exit;
@@ -169,7 +172,7 @@ class Coupon_Prompt_Frontend
             exit;
         }
         // Now process sanitized coupon code
-        $coupon_code = sanitize_text_field(wp_unslash($coupon_code_raw));
+        $coupon_code = $coupon_code_for_nonce;
         if (!WC()->cart->has_discount($coupon_code)) {
             if (method_exists(WC()->cart, 'add_discount')) {
                 $applied = WC()->cart->add_discount($coupon_code);
