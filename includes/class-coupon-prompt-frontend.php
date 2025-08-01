@@ -148,6 +148,14 @@ class Coupon_Prompt_Frontend
         ) {
             return;
         }
+        // Nonce check first, before processing any input
+        $nonce = isset($_GET['coupon_prompt_nonce']) ? sanitize_text_field(wp_unslash($_GET['coupon_prompt_nonce'])) : '';
+        $coupon_code_raw = isset($_GET['apply_coupon_prompt']) ? $_GET['apply_coupon_prompt'] : '';
+        if (empty($nonce) || empty($coupon_code_raw) || !wp_verify_nonce($nonce, 'coupon_prompt_apply_' . $coupon_code_raw)) {
+            wc_add_notice(__('Security check failed. Please try again.', 'coupon-prompt'), 'error');
+            wp_redirect(remove_query_arg(array('apply_coupon_prompt', 'coupon_prompt_nonce')));
+            exit;
+        }
         // Only allow logged-in users or guests with cart access
         if (!is_user_logged_in() && !apply_filters('coupon_prompt_allow_guest_apply', false)) {
             wc_add_notice(__('You must be logged in to apply a coupon.', 'coupon-prompt'), 'error');
@@ -160,13 +168,8 @@ class Coupon_Prompt_Frontend
             wp_redirect(remove_query_arg(array('apply_coupon_prompt', 'coupon_prompt_nonce')));
             exit;
         }
-        $coupon_code = sanitize_text_field(wp_unslash($_GET['apply_coupon_prompt']));
-        $nonce = sanitize_text_field(wp_unslash($_GET['coupon_prompt_nonce']));
-        if (!wp_verify_nonce($nonce, 'coupon_prompt_apply_' . $coupon_code)) {
-            wc_add_notice(__('Security check failed. Please try again.', 'coupon-prompt'), 'error');
-            wp_redirect(remove_query_arg(array('apply_coupon_prompt', 'coupon_prompt_nonce')));
-            exit;
-        }
+        // Now process sanitized coupon code
+        $coupon_code = sanitize_text_field(wp_unslash($coupon_code_raw));
         if (!WC()->cart->has_discount($coupon_code)) {
             if (method_exists(WC()->cart, 'add_discount')) {
                 $applied = WC()->cart->add_discount($coupon_code);
